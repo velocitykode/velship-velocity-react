@@ -1,0 +1,175 @@
+@import 'tailwindcss';
+
+@plugin 'tailwindcss-animate';
+
+@source '../views';
+
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   Theme tokens - hoisted into @theme so utilities like `bg-bg`,
+   `text-fg`, `border-border-strong`, `bg-panel` are generated.
+   Dark mode overrides the same --color-* vars under `.dark`,
+   and Tailwind emits utilities that reference them via var(),
+   so the cascade handles theme swapping with zero extra CSS.
+   ============================================================ */
+@theme {
+    /* Typography */
+    --font-sans:
+        'Inter', ui-sans-serif, system-ui, sans-serif,
+        'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+        'Noto Color Emoji';
+
+    --font-mono:
+        'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
+
+    /* Sharp edges */
+    --radius-lg: 0px;
+    --radius-md: 0px;
+    --radius-sm: 0px;
+    --radius: 0px;
+
+    /* Paper palette - light defaults (overridden in .dark below) */
+    --color-bg: #faf7f0;
+    --color-surface: #ffffff;
+    --color-surface-alt: #f3ede0;
+    --color-fg: #0a0a0a;
+    --color-muted: #595959;
+    --color-dim: #8a8a8a;
+    --color-border: #d9d3c5;
+    --color-border-strong: #b8b0a0;
+    --color-accent: #0a0a0a;
+    --color-accent-fg: #faf7f0;
+    --color-error: #c0392b;
+    --color-error-soft: #f3d9d4;
+
+    /* Phosphor - reserved for the logo's cursor character. Only place
+       color appears outside semantic signals (success/error/warning).
+       Deep green on light paper, bright phosphor on dark terminal. */
+    --color-phosphor: #0a7a3c;
+
+    /* Brand panel palette - dark surface used in auth-layout left column.
+       Stays dark across both themes for a consistent brand silhouette,
+       but we do shift slightly in dark mode (see .dark override). */
+    --color-panel: #0a0a0a;
+    --color-panel-surface: #141414;
+    --color-panel-fg: #faf7f0;
+    --color-panel-muted: #9a9a9a;
+    --color-panel-dim: #6b6b6b;
+    --color-panel-border: #26231d;
+}
+
+/* Dark mode overrides - Tailwind utilities reference var(--color-*),
+   so changing the vars here flips every themed utility. */
+.dark {
+    --color-bg: #0a0a0a;
+    --color-surface: #141414;
+    --color-surface-alt: #1c1c1c;
+    --color-fg: #faf7f0;
+    --color-muted: #a0a0a0;
+    --color-dim: #6b6b6b;
+    --color-border: #2a2a2a;
+    --color-border-strong: #3d3d3d;
+    --color-accent: #faf7f0;
+    --color-accent-fg: #0a0a0a;
+    --color-error: #ff6b5a;
+    --color-error-soft: #3a1a16;
+    --color-phosphor: #6effa3;
+
+    --color-panel: #141414;
+    --color-panel-surface: #1c1c1c;
+    --color-panel-fg: #faf7f0;
+    --color-panel-muted: #a0a0a0;
+    --color-panel-dim: #6b6b6b;
+    --color-panel-border: #2a2a2a;
+}
+
+@layer base {
+    html,
+    body {
+        background-color: var(--color-bg);
+        color: var(--color-fg);
+    }
+
+    body {
+        font-family: var(--font-sans);
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    input,
+    textarea,
+    select,
+    button {
+        font-family: inherit;
+    }
+
+    ::selection {
+        background-color: var(--color-accent);
+        color: var(--color-accent-fg);
+    }
+}
+
+@layer utilities {
+    /* Subtle grid texture for dark brand panels */
+    .bg-paper-grid {
+        background-image:
+            linear-gradient(var(--color-panel-border) 1px, transparent 1px),
+            linear-gradient(90deg, var(--color-panel-border) 1px, transparent 1px);
+        background-size: 48px 48px;
+        background-position: -1px -1px;
+        opacity: 0.5;
+    }
+
+    /* Mono caption for labels, helper text, legal lines */
+    .caption-mono {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        line-height: 1.5;
+    }
+    .caption-mono-upper {
+        font-family: var(--font-mono);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        line-height: 1.5;
+    }
+
+    /* Underline style for in-prose links (Rivian legal treatment) */
+    .link-underline {
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        text-decoration-thickness: 1px;
+    }
+    .link-underline:hover {
+        text-decoration-thickness: 2px;
+    }
+
+    /* Terminal ASCII spinner - used for Button loading state */
+    .ascii-spinner::before {
+        content: '|';
+        display: inline-block;
+        width: 1ch;
+        text-align: center;
+        font-family: var(--font-mono);
+        font-weight: 500;
+        animation: ascii-spin 0.6s linear infinite;
+    }
+
+    /* Blinking cursor character - used by the AppLogo's trailing _ */
+    .cursor-blink {
+        animation: cursor-blink 1.05s step-end infinite;
+    }
+}
+
+@keyframes ascii-spin {
+    0%   { content: '|'; }
+    25%  { content: '/'; }
+    50%  { content: '-'; }
+    75%  { content: '\\'; }
+}
+
+@keyframes cursor-blink {
+    50%, 100% { opacity: 0; }
+}

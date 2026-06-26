@@ -1,0 +1,12 @@
+package middleware
+
+import (
+	"github.com/velocitykode/velocity/router"
+)
+
+func LoggingMiddleware(next router.HandlerFunc) router.HandlerFunc {
+	return func(c *router.Context) error {
+		c.Log().Info("Request", "method", c.Request.Method, "path", c.Request.URL.Path)
+		return next(c)
+	}
+}
