@@ -8,6 +8,7 @@ export default defineConfig({
     plugins: [
         velocity('resources/js/app.tsx'),
         inertia({
+            ssr: false,
             pages: 'resources/js/pages',
         }),
         react(),
