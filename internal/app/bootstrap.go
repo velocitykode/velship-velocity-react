@@ -9,9 +9,12 @@ import (
 	"time"
 
 	"velship-velocity-react/config"
+	"velship-velocity-react/internal/sessionstore"
 
 	"github.com/velocitykode/velocity"
+	"github.com/velocitykode/velocity/auth"
 	"github.com/velocitykode/velocity/bond/vite"
+	"github.com/velocitykode/velocity/cache"
 	"github.com/velocitykode/velocity/csrf"
 	"github.com/velocitykode/velocity/view"
 )
@@ -35,9 +38,39 @@ func (p *AppProvider) Register(s *velocity.Services) error {
 	return nil
 }
 
-// Boot wires the view engine - runs after every provider's Register.
+// Boot wires the view engine and the server-side session store - runs
+// after every provider's Register.
 func (p *AppProvider) Boot(s *velocity.Services) error {
+	if err := bootstrapSessionStore(s); err != nil {
+		return err
+	}
 	return bootstrapView(s)
+}
+
+// bootstrapSessionStore installs the cache-backed ServerSessionStore on the
+// auth.Manager. Production is secure-by-default: cookie-only sessions cannot
+// propagate revocation across processes, so velocity's boot-time H-04 guard
+// refuses a production boot without a server store. With CACHE_DRIVER=redis
+// the records survive restarts and stay coherent across instances. Skipped
+// silently when auth or cache is not wired (JWT-only or test bootstraps).
+func bootstrapSessionStore(s *velocity.Services) error {
+	authManager, ok := s.Auth.(*auth.Manager)
+	if !ok || authManager == nil {
+		return nil
+	}
+	cm, ok := s.Cache.(cache.CacheManager)
+	if !ok || cm == nil {
+		return nil
+	}
+	store, err := sessionstore.New(cm)
+	if err != nil {
+		return err
+	}
+	// The manager propagates the store to every guard implementing
+	// auth.ServerSessionStoreReceiver; the session guard consults it on
+	// every authenticated request and on Login/Logout.
+	authManager.SetServerSessionStore(store)
+	return nil
 }
 
 func (p *AppProvider) Shutdown(_ context.Context) error {
