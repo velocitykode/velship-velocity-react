@@ -45,7 +45,7 @@ const resources = [
   { name: 'Settings', href: '#', icon: Settings },
 ];
 
-const stats = [
+const baseStats = [
   { label: 'Routes', value: '12', icon: Route, change: '+2' },
   { label: 'Middleware', value: '6', icon: Shield },
   { label: 'Cache hit', value: '94%', icon: Gauge },
@@ -70,9 +70,20 @@ const activities = [
 
 export default function Dashboard() {
   usePageTitle('Dashboard');
-  const { props } = usePage<{ auth: { user: { name: string; email: string } } }>();
+  const { props } = usePage<{
+    auth: { user: { name: string; email: string } };
+    stats?: { mrr: string; uptime: string };
+  }>();
   const user = props.auth?.user;
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Server-computed figures override the static samples when present.
+  const stats = baseStats.map((s) =>
+    s.label === 'Uptime' && props.stats?.uptime ? { ...s, value: props.stats.uptime } : s,
+  );
+  if (props.stats?.mrr) {
+    stats.push({ label: 'MRR', value: `$${props.stats.mrr}`, icon: Activity });
+  }
 
   const completed = tasks.filter((t) => t.done).length;
   const progressPct = Math.round((completed / tasks.length) * 100);

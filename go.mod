@@ -2,7 +2,11 @@ module velship-velocity-react
 
 go 1.26.3
 
-require github.com/velocitykode/velocity v0.50.11
+require (
+	github.com/dustin/go-humanize v1.0.1
+	github.com/shopspring/decimal v1.4.0
+	github.com/velocitykode/velocity v0.50.11
+)
 
 require (
 	filippo.io/edwards25519 v1.1.1 // indirect
@@ -40,7 +44,6 @@ require (
 	github.com/charmbracelet/x/cellbuf v0.0.13-0.20250311204145-2c3ea96c31dd // indirect
 	github.com/charmbracelet/x/term v0.2.1 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
-	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/erikgeiser/coninput v0.0.0-20211004153227-1c3628e74d0f // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/go-sql-driver/mysql v1.9.3 // indirect
