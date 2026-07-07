@@ -9,6 +9,7 @@ import {
 } from '@/components/ui';
 import { usePageTitle } from '@/hooks/use-page-title';
 import { Link, usePage } from '@inertiajs/react';
+import dayjs from 'dayjs';
 import {
   Activity,
   ArrowRight,
@@ -72,7 +73,7 @@ export default function Dashboard() {
   usePageTitle('Dashboard');
   const { props } = usePage<{
     auth: { user: { name: string; email: string } };
-    stats?: { mrr: string; uptime: string };
+    stats?: { mrr: string; uptime: string; traceId?: string };
   }>();
   const user = props.auth?.user;
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -84,6 +85,7 @@ export default function Dashboard() {
   if (props.stats?.mrr) {
     stats.push({ label: 'MRR', value: `$${props.stats.mrr}`, icon: Activity });
   }
+  const renderedAt = dayjs().format('HH:mm:ss');
 
   const completed = tasks.filter((t) => t.done).length;
   const progressPct = Math.round((completed / tasks.length) * 100);
@@ -193,7 +195,8 @@ export default function Dashboard() {
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
                 </span>
                 <span className="caption-mono-upper text-emerald-700 dark:text-emerald-400">
-                  Live
+                  Live · {renderedAt}
+                  {props.stats?.traceId ? ` · ${props.stats.traceId.slice(-6)}` : ''}
                 </span>
               </div>
               <h2 className="font-sans text-2xl lg:text-3xl xl:text-[36px] font-semibold tracking-tight">

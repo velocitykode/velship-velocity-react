@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"math/rand"
 	"time"
 
 	"github.com/dustin/go-humanize"
+	"github.com/oklog/ulid/v2"
 	"github.com/shopspring/decimal"
 	"github.com/velocitykode/velocity/auth"
 	"github.com/velocitykode/velocity/router"
@@ -31,6 +33,9 @@ func Dashboard(ctx *router.Context) error {
 	stats := map[string]interface{}{
 		"mrr":    mrr.StringFixed(2),
 		"uptime": humanize.Time(bootedAt),
+		// Per-render trace id: sortable, stamps when the dashboard payload was
+		// composed so the client can show data freshness.
+		"traceId": ulid.MustNew(ulid.Timestamp(time.Now()), rand.New(rand.NewSource(time.Now().UnixNano()))).String(),
 	}
 
 	view.Render(ctx, "Dashboard", view.Props{

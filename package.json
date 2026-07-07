@@ -30,6 +30,7 @@
         "@velocitykode/velocity-vite-plugin": "^0.1.0",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
+        "dayjs": "^1.11.21",
         "input-otp": "^1.4.2",
         "lucide-react": "^0.475.0",
         "react": "^19.0.0",
