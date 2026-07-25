@@ -22,6 +22,11 @@ import (
 	// Blank import so each migration file's init() runs and calls
 	// migrate.Register() - otherwise `vel migrate` finds nothing.
 	_ "velship-velocity-react/database/migrations"
+
+	// APM. The import is the whole install: the SDK registers a boot hook from
+	// an init, then stays dormant unless VELWATCH_TOKEN is present, so this is
+	// inert everywhere the platform has not provisioned an integration.
+	_ "github.com/velocitykode/velwatch-go"
 )
 
 func main() {
