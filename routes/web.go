@@ -43,6 +43,11 @@ func Register(r *velocity.Routing) {
 		// an "intended" query param so post-login redirect works.
 		web.Group("", func(authed router.Router) {
 			authed.Get("/dashboard", handlers.Dashboard) // /dashboard
+
+			// Dispatches a background job so the queue lifecycle can be
+			// observed end to end. Authenticated so it is not an
+			// unauthenticated way to make the box do work on demand.
+			authed.Get("/jobs/welcome", handlers.DispatchWelcomeEmail) // /jobs/welcome
 		}).Use(auth.AuthMiddleware(authManager))
 	})
 }

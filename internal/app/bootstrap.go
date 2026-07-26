@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"encoding/json"
 	"html/template"
 	"net/http"
 	"os"
@@ -9,13 +10,16 @@ import (
 	"time"
 
 	"velship-velocity-react/config"
+	"velship-velocity-react/internal/jobs"
 	"velship-velocity-react/internal/sessionstore"
 
 	"github.com/velocitykode/velocity"
+	velocityapp "github.com/velocitykode/velocity/app"
 	"github.com/velocitykode/velocity/auth"
 	"github.com/velocitykode/velocity/bond/vite"
 	"github.com/velocitykode/velocity/cache"
 	"github.com/velocitykode/velocity/csrf"
+	"github.com/velocitykode/velocity/queue"
 	"github.com/velocitykode/velocity/view"
 )
 
@@ -30,12 +34,35 @@ func Configure(reg *velocity.ProviderRegistry) {
 // guards are built by the framework from env vars during velocity.New(),
 // so we only need to stand up the Inertia view engine and share the
 // CSRF token into its props.
-type AppProvider struct{}
+type AppProvider struct {
+	// worker is the in-process queue worker, stopped on Shutdown.
+	worker *queue.Worker
+}
 
-// Register runs before any provider's Boot. Nothing to do here - the
-// framework already built CSRF, Auth, and the session guard.
+// Register runs before any provider's Boot. The framework already built
+// CSRF, Auth, and the session guard, so the only work here is the queue job
+// registry.
 func (p *AppProvider) Register(s *velocity.Services) error {
+	registerJobs()
 	return nil
+}
+
+// registerJobs teaches the queue how to rebuild each job type from its
+// persisted payload.
+//
+// A durable driver (redis, database) carries only JSON across the process
+// boundary, so the worker reconstructs the job through this registry rather
+// than receiving the original pointer. Without an entry a pop fails with
+// ErrJobNotFound and the job is routed to failed_jobs - it does not run and
+// does not silently no-op.
+//
+// RegisterJob derives the registry key from the type itself, so the push side
+// and the decode side cannot drift the way a hand-written string key can.
+func registerJobs() {
+	queue.RegisterJob(func(data []byte) (*jobs.SendWelcomeEmail, error) {
+		j := &jobs.SendWelcomeEmail{}
+		return j, json.Unmarshal(data, j)
+	})
 }
 
 // Boot wires the view engine and the server-side session store - runs
@@ -44,7 +71,54 @@ func (p *AppProvider) Boot(s *velocity.Services) error {
 	if err := bootstrapSessionStore(s); err != nil {
 		return err
 	}
-	return bootstrapView(s)
+	if err := bootstrapView(s); err != nil {
+		return err
+	}
+	worker, err := bootstrapQueueWorker(s)
+	if err != nil {
+		return err
+	}
+	p.worker = worker
+	return nil
+}
+
+// bootstrapQueueWorker runs a queue worker inside the web process.
+//
+// The default queue driver holds jobs in memory, so a worker started as a
+// separate `vel queue:work` process would poll its own empty queue and never
+// see anything this process pushed. Co-locating the worker is what makes a
+// dispatch actually run - and what lets the job lifecycle (job.processing,
+// job.processed, job.failed) reach the event dispatcher, since only a running
+// worker emits those three.
+//
+// A single serial worker: this exists to make queue behaviour observable, not
+// to carry throughput. Returns nil when no queue is configured.
+func bootstrapQueueWorker(s *velocity.Services) (*queue.Worker, error) {
+	if s.Queue == nil {
+		return nil, nil
+	}
+	worker := queue.NewWorker(
+		s.Queue,
+		"default",
+		func(job queue.Job) error { return job.Handle() },
+		queue.WithWorkerLogger(s.Log),
+	)
+
+	// Registering the worker is what gets its event dispatcher wired. The
+	// framework re-runs its dispatcher sweep over registered components after
+	// every provider has booted, and queue.Worker implements
+	// contract.EventDispatcherAware - so job.processing, job.processed and
+	// job.failed reach listeners. A hand-constructed worker that is never
+	// registered still runs jobs, silently: its dispatch is nil-safe, so the
+	// work happens and only the observability disappears.
+	if err := velocityapp.Register(s, worker); err != nil {
+		return nil, err
+	}
+
+	// The worker owns teardown through Stop, which cancels this context and
+	// waits for in-flight jobs; the loop is not tied to a request lifetime.
+	worker.Start(context.Background())
+	return worker, nil
 }
 
 // bootstrapSessionStore installs the cache-backed ServerSessionStore on the
@@ -74,6 +148,11 @@ func bootstrapSessionStore(s *velocity.Services) error {
 }
 
 func (p *AppProvider) Shutdown(_ context.Context) error {
+	if p.worker != nil {
+		// Stop cancels the worker context and waits for in-flight jobs, so
+		// shutdown does not truncate a job mid-flight.
+		p.worker.Stop()
+	}
 	return nil
 }
 
