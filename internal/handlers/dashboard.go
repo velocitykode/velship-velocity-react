@@ -4,6 +4,8 @@ import (
 	"math/rand"
 	"time"
 
+	"velship-velocity-react/internal/models"
+
 	"github.com/dustin/go-humanize"
 	"github.com/oklog/ulid/v2"
 	"github.com/shopspring/decimal"
@@ -19,12 +21,14 @@ var bootedAt = time.Now()
 func Dashboard(ctx *router.Context) error {
 	user := auth.FromContext(ctx).User(ctx.Request)
 
-	// Convert user to map for props
+	// The ORM-backed provider hands back the app's own model - the
+	// framework's AuthUser wrapper is only what a provider with no model of
+	// its own returns.
 	userMap := make(map[string]interface{})
-	if authUser, ok := user.(*auth.AuthUser); ok {
-		userMap["id"] = authUser.ID
-		userMap["name"] = authUser.Name
-		userMap["email"] = authUser.Email
+	if u, ok := user.(*models.User); ok && u != nil {
+		userMap["id"] = u.ID
+		userMap["name"] = u.Name
+		userMap["email"] = u.Email
 	}
 
 	// Sample stats block: exact decimal arithmetic for a monetary figure and a
