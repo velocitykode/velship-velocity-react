@@ -6,7 +6,7 @@ require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/oklog/ulid/v2 v2.1.0
 	github.com/shopspring/decimal v1.4.0
-	github.com/velocitykode/velocity v0.70.0
+	github.com/velocitykode/velocity v0.72.0
 	github.com/velocitykode/velwatch-go v0.2.4
 )
 

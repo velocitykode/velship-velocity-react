@@ -1,18 +1,8 @@
 package models
 
 import (
-	"github.com/velocitykode/velocity/auth/providers/ormauth"
 	"github.com/velocitykode/velocity/orm"
 )
-
-// The auth provider selects its model through a name registry, because the
-// ORM needs a compile-time type where configuration only carries a string
-// (AUTH_MODEL). "User" ships pre-registered to the framework's placeholder
-// model; binding it here is what makes authenticated requests carry THIS
-// model instead of the stand-in.
-func init() {
-	ormauth.MustRegister(ormauth.DefaultModelName, ormauth.Factory[User]())
-}
 
 // User model represents a user in the application
 type User struct {

@@ -11,6 +11,7 @@ import (
 
 	"velship-velocity-react/config"
 	"velship-velocity-react/internal/jobs"
+	"velship-velocity-react/internal/models"
 	"velship-velocity-react/internal/sessionstore"
 
 	"github.com/velocitykode/velocity"
@@ -40,9 +41,16 @@ type AppProvider struct {
 }
 
 // Register runs before any provider's Boot. The framework already built
-// CSRF, Auth, and the session guard, so the only work here is the queue job
-// registry.
+// CSRF, Auth, and the session guard, so the work here is pointing auth at
+// this app's own model and filling the queue job registry.
 func (p *AppProvider) Register(s *velocity.Services) error {
+	// The model is a type parameter, not configuration: the ORM resolves
+	// its table from a compile-time type, so a wrong model is a compile
+	// error. Installing the provider re-points every guard velocity.New
+	// already built.
+	if err := velocity.SetAuthModel[models.User](s); err != nil {
+		return err
+	}
 	registerJobs()
 	return nil
 }

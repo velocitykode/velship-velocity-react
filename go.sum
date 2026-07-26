@@ -138,8 +138,8 @@ github.com/shopspring/decimal v1.4.0 h1:bxl37RwXBklmTi0C79JfXCEBD1cqqHt0bbgBAGFp
 github.com/shopspring/decimal v1.4.0/go.mod h1:gawqmDU56v4yIKSwfBSFip1HdCCXN8/+DMd9qYNcwME=
 github.com/velocitykode/prism v0.16.0 h1:i03yvGdb/+sHqC537CuIzJluJ7J8blzfqZK+I/bjJ8A=
 github.com/velocitykode/prism v0.16.0/go.mod h1:N2LasRemjLaLYsW5yhmcfSv8/x+lFyb/0QJQCbwBYbY=
-github.com/velocitykode/velocity v0.70.0 h1:Eeuv028ll2qMdokBIu2wlHx0sC0j0NohfjkG+5Tv9d4=
-github.com/velocitykode/velocity v0.70.0/go.mod h1:oJ2fFU1i+OzE6VPuCS1jxl6YFh0mCXAsZJmBJOqD+2I=
+github.com/velocitykode/velocity v0.72.0 h1:rF1Cc8YJ7WN/dhb7jAirKxQKJD9JldPjjWRCion8TH0=
+github.com/velocitykode/velocity v0.72.0/go.mod h1:oJ2fFU1i+OzE6VPuCS1jxl6YFh0mCXAsZJmBJOqD+2I=
 github.com/velocitykode/velwatch-go v0.2.4 h1:ZkI8Jas5lI4tvXmd/peblmVk17XcVbn2hC4XmCs00Hc=
 github.com/velocitykode/velwatch-go v0.2.4/go.mod h1:Z8oh0JKAn1rZwG/ZoLqhFxgzo3UwAH4wnEx14T5l+EI=
 github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e h1:JVG44RsyaB9T2KIHavMF/ppJZNG9ZpyihvCd0w101no=
