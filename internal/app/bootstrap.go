@@ -24,29 +24,29 @@ import (
 	"github.com/velocitykode/velocity/view"
 )
 
-// Configure registers the app's service providers. main.go passes this
-// to v.Providers(...) - the framework calls Register on every provider
-// during bootstrap, then Boot once Register has finished for all of them.
-func Configure(reg *velocity.ProviderRegistry) {
-	reg.Add(&AppProvider{})
+// Configure registers the app's modules. main.go passes this to
+// v.Modules(...) - the framework calls Init on every module during
+// bootstrap, then Start once Init has finished for all of them.
+func Configure(reg *velocity.ModuleRegistry) {
+	reg.Add(&AppModule{})
 }
 
-// AppProvider wires the view engine for this application. CSRF and auth
-// guards are built by the framework from env vars during velocity.New(),
+// AppModule wires the view engine for this application. CSRF and auth
+// schemes are built by the framework from env vars during velocity.New(),
 // so we only need to stand up the Inertia view engine and share the
 // CSRF token into its props.
-type AppProvider struct {
+type AppModule struct {
 	// worker is the in-process queue worker, stopped on Shutdown.
 	worker *queue.Worker
 }
 
-// Register runs before any provider's Boot. The framework already built
-// CSRF, Auth, and the session guard, so the work here is pointing auth at
-// this app's own model and filling the queue job registry.
-func (p *AppProvider) Register(s *velocity.Services) error {
+// Init runs before any module's Start. The framework already built
+// CSRF, Auth, and the session scheme, so the work here is pointing auth
+// at this app's own model and filling the queue job registry.
+func (p *AppModule) Init(s *velocity.Services) error {
 	// The model is a type parameter, not configuration: the ORM resolves
 	// its table from a compile-time type, so a wrong model is a compile
-	// error. Installing the provider re-points every guard velocity.New
+	// error. Installing the module re-points every scheme velocity.New
 	// already built.
 	if err := velocity.SetAuthModel[models.User](s); err != nil {
 		return err
@@ -73,9 +73,9 @@ func registerJobs() {
 	})
 }
 
-// Boot wires the view engine and the server-side session store - runs
-// after every provider's Register.
-func (p *AppProvider) Boot(s *velocity.Services) error {
+// Start wires the view engine and the server-side session store - runs
+// after every module's Init.
+func (p *AppModule) Start(s *velocity.Services) error {
 	if err := bootstrapSessionStore(s); err != nil {
 		return err
 	}
@@ -93,7 +93,7 @@ func (p *AppProvider) Boot(s *velocity.Services) error {
 // bootstrapQueueWorker runs a queue worker inside the web process.
 //
 // The default queue driver holds jobs in memory, so a worker started as a
-// separate `vel queue:work` process would poll its own empty queue and never
+// separate `vel queue work` process would poll its own empty queue and never
 // see anything this process pushed. Co-locating the worker is what makes a
 // dispatch actually run - and what lets the job lifecycle (job.processing,
 // job.processed, job.failed) reach the event dispatcher, since only a running
@@ -114,7 +114,7 @@ func bootstrapQueueWorker(s *velocity.Services) (*queue.Worker, error) {
 
 	// Registering the worker is what gets its event dispatcher wired. The
 	// framework re-runs its dispatcher sweep over registered components after
-	// every provider has booted, and queue.Worker implements
+	// every module has booted, and queue.Worker implements
 	// contract.EventDispatcherAware - so job.processing, job.processed and
 	// job.failed reach listeners. A hand-constructed worker that is never
 	// registered still runs jobs, silently: its dispatch is nil-safe, so the
@@ -148,14 +148,14 @@ func bootstrapSessionStore(s *velocity.Services) error {
 	if err != nil {
 		return err
 	}
-	// The manager propagates the store to every guard implementing
-	// auth.ServerSessionStoreReceiver; the session guard consults it on
+	// The manager propagates the store to every scheme implementing
+	// auth.ServerSessionStoreReceiver; the session scheme consults it on
 	// every authenticated request and on Login/Logout.
 	authManager.SetServerSessionStore(store)
 	return nil
 }
 
-func (p *AppProvider) Shutdown(_ context.Context) error {
+func (p *AppModule) Shutdown(_ context.Context) error {
 	if p.worker != nil {
 		// Stop cancels the worker context and waits for in-flight jobs, so
 		// shutdown does not truncate a job mid-flight.

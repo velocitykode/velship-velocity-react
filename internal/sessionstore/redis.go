@@ -3,11 +3,11 @@
 // Redis (see CACHE_DRIVER in docker-compose), so server-side session
 // records survive platform restarts and stay coherent across instances.
 //
-// The framework's SessionGuard owns the cookie session and writes one
+// The framework's SessionScheme owns the cookie session and writes one
 // StoredSession per Login into this store; this package owns the
 // administrative view (list active sessions, revoke a single session,
 // sign out everywhere). Manager.SetServerSessionStore propagates the
-// store to the guard via the auth.ServerSessionStoreReceiver interface,
+// store to the scheme via the auth.ServerSessionStoreReceiver interface,
 // so this package never needs to be invoked by the app.s request path.
 package sessionstore
 
@@ -37,7 +37,7 @@ const (
 const userIndexSlack = 1 * time.Minute
 
 // ErrNilCache is returned when the constructor is called without a cache
-// manager. Surfaces at boot so misconfigured providers fail fast.
+// manager. Surfaces at boot so misconfigured modules fail fast.
 var ErrNilCache = errors.New("sessionstore: cache manager is nil")
 
 // Store is an auth.ServerSessionStore backed by velocity/cache. The "Redis"
@@ -58,7 +58,7 @@ type Store struct {
 var _ auth.ServerSessionStore = (*Store)(nil)
 
 // New builds a Store. ErrNilCache is returned when cm is nil so a missing
-// cache surfaces during AppProvider.Boot rather than silently producing a
+// cache surfaces during AppModule.Start rather than silently producing a
 // store whose writes vanish.
 func New(cm cache.CacheManager) (*Store, error) {
 	if cm == nil {

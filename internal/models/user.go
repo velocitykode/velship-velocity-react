@@ -16,7 +16,7 @@ type User struct {
 }
 
 // Authenticatable implementation. Implementing the interface directly is the
-// path the provider prefers: lookups hand the model straight back and the
+// path the user store prefers: lookups hand the model straight back and the
 // reflection-based column mapping is skipped entirely.
 
 // GetAuthIdentifier returns the primary key.

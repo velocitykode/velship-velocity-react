@@ -1,13 +1,13 @@
 module velship-velocity-react
 
-go 1.26.3
+go 1.26.5
 
 require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/oklog/ulid/v2 v2.1.0
 	github.com/shopspring/decimal v1.4.0
-	github.com/velocitykode/velocity v0.72.0
-	github.com/velocitykode/velwatch-go v0.2.4
+	github.com/velocitykode/velocity v0.73.0
+	github.com/velocitykode/velwatch-go v0.2.5-0.20260813034724-2ef12dd39990
 )
 
 require (
@@ -70,14 +70,14 @@ require (
 	github.com/velocitykode/prism v0.16.0 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
 	go.opentelemetry.io/proto/otlp v1.10.0 // indirect
-	golang.org/x/crypto v0.48.0 // indirect
-	golang.org/x/net v0.50.0 // indirect
-	golang.org/x/sys v0.42.0 // indirect
+	golang.org/x/crypto v0.52.0 // indirect
+	golang.org/x/net v0.55.0 // indirect
+	golang.org/x/sys v0.45.0 // indirect
 	golang.org/x/text v0.39.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20260209200024-4cfbd4190f57 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260209200024-4cfbd4190f57 // indirect
-	google.golang.org/grpc v1.79.3 // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20260414002931-afd174a4e478 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260414002931-afd174a4e478 // indirect
+	google.golang.org/grpc v1.82.1 // indirect
 	google.golang.org/protobuf v1.36.11 // indirect
 	modernc.org/libc v1.72.3 // indirect
 	modernc.org/mathutil v1.7.1 // indirect

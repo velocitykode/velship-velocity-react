@@ -21,8 +21,8 @@ var bootedAt = time.Now()
 func Dashboard(ctx *router.Context) error {
 	user := auth.FromContext(ctx).User(ctx.Request)
 
-	// The ORM-backed provider hands back the app's own model - the
-	// framework's AuthUser wrapper is only what a provider with no model of
+	// The ORM-backed user store hands back the app's own model - the
+	// framework's AuthUser wrapper is only what a store with no model of
 	// its own returns.
 	userMap := make(map[string]interface{})
 	if u, ok := user.(*models.User); ok && u != nil {
