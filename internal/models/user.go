@@ -5,7 +5,8 @@ import (
 )
 
 // User is the application's account row and the auth model registered with
-// velocity.SetAuthModel; it is the only model the scaffold mass-assigns.
+// velocity.SetAuthModel; it is the only model the scaffold mass-assigns,
+// so ProtectedFields below is the whole policy surface.
 type User struct {
 	orm.Model[User]
 	Name     string `orm:"column:name;type:varchar(255);not_null" json:"name"`
