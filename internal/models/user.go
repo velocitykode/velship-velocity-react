@@ -4,7 +4,8 @@ import (
 	"github.com/velocitykode/velocity/orm"
 )
 
-// User model represents a user in the application
+// User is the application's account row and the auth model registered with
+// velocity.SetAuthModel.
 type User struct {
 	orm.Model[User]
 	Name     string `orm:"column:name;type:varchar(255);not_null" json:"name"`
