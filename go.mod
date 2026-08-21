@@ -1,12 +1,12 @@
 module velship-velocity-react
 
-go 1.26.5
+go 1.26.6
 
 require (
 	github.com/dustin/go-humanize v1.0.1
 	github.com/oklog/ulid/v2 v2.1.0
 	github.com/shopspring/decimal v1.4.0
-	github.com/velocitykode/velocity v0.73.0
+	github.com/velocitykode/velocity v0.75.1
 	github.com/velocitykode/velwatch-go v0.2.5-0.20260813034724-2ef12dd39990
 )
 
